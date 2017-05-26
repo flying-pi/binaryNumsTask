@@ -1,5 +1,4 @@
 #include <iostream>
-#include <math.h>
 #include "Tree.h"
 
 using namespace std;
@@ -77,8 +76,7 @@ int countCombinationByPow(int count) {
 
     int limit = count / 2;
     unsigned int counter = 1;
-    unsigned int final = (unsigned int) pow(2, count);
-    while (counter < final) {
+    for (int i = 0; i < count; i++) {
         cout << toBinaryText(counter, out, count) << endl;
         result++;
         result += downCountPowMethod(out, counter >> 2, counter, count, limit - 1);
@@ -93,13 +91,13 @@ int countCombination(double length, int *out, int currentPosition, double sum) {
         return 0;
     }
     if (length == currentPosition) {
-        printResult(out, length);
+        printResult(out, (int) length);
         delete[]out;
         return 1;
     }
     int oneWay = 0;
     if (currentPosition == 0 || out[currentPosition - 1] != 1) {
-        int *copy = copyItem(out, length);
+        int *copy = copyItem(out, (int) length);
         copy[currentPosition] = 1;
         oneWay = countCombination(length, copy, currentPosition + 1, sum + 1);
     }
@@ -109,15 +107,13 @@ int countCombination(double length, int *out, int currentPosition, double sum) {
 }
 
 
-
-int countWithTree(Tree *tree, int bufPos, char *buf, int bufSize, int maxOneLenth) {
-    int result = 0;
+int countWithTree(Tree *tree, int bufPos, char *buf, int bufSize, int oneLenth) {
     if (tree->isLastLevel()) {
         int result = 1;
         int value = tree->value();
         if (value == 1)
-            maxOneLenth--;
-        if (maxOneLenth >= 0) {
+            oneLenth--;
+        if (oneLenth >= 0) {
             buf[bufPos] = value == 0 ? '0' : '1';
             cout << buf << endl;
         } else {
@@ -128,14 +124,15 @@ int countWithTree(Tree *tree, int bufPos, char *buf, int bufSize, int maxOneLent
         return result;
     }
 
+    int result = 0;
     if (tree->value() == 0) {
         buf[bufPos] = '0';
-        result += countWithTree(tree->getNewFork()->right(), bufPos + 1, copyText(buf, bufSize), bufSize, maxOneLenth);
-        result += countWithTree(tree->left(), bufPos + 1, buf, bufSize, maxOneLenth);
+        result += countWithTree(tree->getNewFork()->right(), bufPos + 1, copyText(buf, bufSize), bufSize, oneLenth);
+        result += countWithTree(tree->left(), bufPos + 1, buf, bufSize, oneLenth);
     } else {
-        maxOneLenth--;
+        oneLenth--;
         buf[bufPos] = '1';
-        result += countWithTree(tree->left(), bufPos + 1, buf, bufSize, maxOneLenth);
+        result += countWithTree(tree->left(), bufPos + 1, buf, bufSize, oneLenth);
     }
     return result;
 }
@@ -145,11 +142,11 @@ int countWithTree(int size) {
 
     char *text = new char[size + 1];
     text[size] = '\0';
-    int leftSide = countWithTree(tree->getNewFork()->moveToRootZero(), 0, text, size, size / 2);
+    int leftSide = countWithTree(tree->getNewFork()->moveToRootZero(), 0, text, size+1, size / 2);
 
     text = new char[size + 1];
     text[size] = '\0';
-    int rightSide = countWithTree(tree->getNewFork()->moveToRootOne(), 0, text, size, size / 2);
+    int rightSide = countWithTree(tree->getNewFork()->moveToRootOne(), 0, text, size+1, size / 2);
 
     delete tree;
     return leftSide + rightSide;
